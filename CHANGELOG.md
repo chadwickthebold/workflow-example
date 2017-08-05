@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-## [1.0.0] - 2017-08-05
+## [v1.0.0] - 2017-08-05
 ### Added
 - Sample index.js script
 - package.json
