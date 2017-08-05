@@ -1,0 +1,19 @@
+{
+  "name": "workflow-example",
+  "version": "1.0.0",
+  "description": "A sample project to showcase gitflow",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chadwickthebold/workflow-example.git"
+  },
+  "author": "",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/chadwickthebold/workflow-example/issues"
+  },
+  "homepage": "https://github.com/chadwickthebold/workflow-example#readme"
+}
