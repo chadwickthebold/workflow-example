@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 'use strict';
 
 const VALID_RELEASE_TYPES = ['major', 'minor', 'patch'];
