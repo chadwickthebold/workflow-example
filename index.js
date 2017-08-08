@@ -1,9 +1,15 @@
 #!/usr/bin/env node
 'use strict';
 
-const fs = require('fs');
 const cp = require('child_process');
 const exec = cp.exec;
+const fs = require('fs');
+const readline = require('readline');
+
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
 
 const VALID_RELEASE_TYPES = ['major', 'minor', 'patch'];
 const CHANGELOG_FILENAME = 'CHANGELOG.md';
@@ -12,7 +18,8 @@ const CHANGELOG_NEW_VERSION_LINE = 7;
 const PROJECT_GITHUB_LINK = 'https://github.com/chadwickthebold/workflow-example';
 const UNRELEASED_LINK_TARGET = '[Unreleased]: ' + PROJECT_GITHUB_LINK;
 const PACKAGE_JSON_VERSION_INDEX = 2;
-const PACKAGE_JSON_VERSION_PREFIX = '  "version": '
+const PACKAGE_JSON_VERSION_PREFIX = '  "version": ';
+const SLACK_HOOK = 'https://hooks.slack.com/services/XXX';
 
 function leftpad(str, padString, length) {
     while (str.length < length)
@@ -31,7 +38,7 @@ function buildReleaseDate() {
   return releaseDate.join('-');
 }
 
-console.log('****************** START CNT Releaser ******************');
+console.log('****************** START CNT Releaser ******************\n');
 
 const args = process.argv.slice(2);
 const releaseType = args[0];
@@ -72,7 +79,7 @@ fs.readFile(CHANGELOG_FILENAME, 'utf8', function(err, data) {
     
   console.log('previous version was v' + previousVersion);
   console.log('next version is v' + nextVersion);
-  console.log('release date', releaseDate);
+  console.log('release date ' + releaseDate);
   
   const newUnreleasedLink = '[Unreleased]: '+ PROJECT_GITHUB_LINK + '/compare/v' + nextVersion + '...HEAD'
   const newVersionLink = '[v' + nextVersion + ']: '+ PROJECT_GITHUB_LINK + '/compare/v' + previousVersion + '...v' + nextVersion;
@@ -87,8 +94,24 @@ fs.readFile(CHANGELOG_FILENAME, 'utf8', function(err, data) {
   changelogContentArray.splice(githubChangeLinkIndex + 1, 0, newVersionLink);
 
   const newVersionHeading = '## [v' + nextVersion + '] - ' + releaseDate;
+  const changelogMessageArray = [newVersionHeading];
 
   changelogContentArray.splice(CHANGELOG_NEW_VERSION_LINE, 0, '', newVersionHeading);
+
+  // Stash the changelog updates for posting to Slack
+  changelogContentArray.some((line, index) => {
+    const shouldFinish = line.indexOf('## [v') !== -1;
+
+    if (index > CHANGELOG_NEW_VERSION_LINE + 1) {
+      if (shouldFinish) {
+        return true;
+      }
+
+      changelogMessageArray.push(line);
+    }
+
+    return false;
+  });
 
   var result = changelogContentArray.join('\n');
 
@@ -114,17 +137,66 @@ fs.readFile(CHANGELOG_FILENAME, 'utf8', function(err, data) {
           return console.log(err);
         }
 
-        exec('git --no-pager diff', (err, stdout, stderr) => {
+        exec('git --no-pager diff --color=always', (err, gitDiffstdout, stderr) => {
           if (err) {
             // node couldn't execute the command
             return;
           }
 
           // the *entire* stdout and stderr (buffered)
-          console.log('**************** START COMMIT SUMMARY ****************');
-          console.log(`stdout: ${stdout}`);
-          console.log('***************** END COMMIT SUMMARY *****************');
-          console.log('**************** END CNT Releaser ****************');
+          console.log('\n**************** START COMMIT SUMMARY ****************\n');
+          console.log(`${gitDiffstdout}`);
+          console.log('\n***************** END COMMIT SUMMARY *****************\n');
+
+          rl.question('\nDoes the above diff look correct? (y/n) ', (answer) => {
+
+            if (answer !== 'y') {
+              console.log('Release script aborted');
+              console.log('Something might be wrong with the release script');
+              console.log('Please reset your local changes before trying again');
+              rl.close();
+              process.exit(1);
+            }
+
+            rl.close();
+
+            exec('git commit -am "v' + nextVersion + ' ('+ releaseDate +')" -n', (err, stdout, stderr) => {
+              console.log(`${stdout}`);
+
+              exec('git push -u origin release/v' + nextVersion, (err, stdout, stderr) => {;
+                console.log(`${stdout}`);
+
+                exec('git checkout master', (err, stdout, stderr) => {
+                  console.log(`${stdout}`);
+
+                  exec('git merge release/v' + nextVersion, (err, stdout, stderr) => {
+                    console.log(`${stdout}`);
+
+                    exec('git tag -a v' + nextVersion + ' -m "v' + nextVersion + ' ('+ releaseDate +')"', (err, stdout, stderr) => {
+                      console.log(`${stdout}`);
+
+                      exec('git push origin master --follow-tags', (err, stdout, stderr) => {
+                        console.log(`${stdout}`);
+
+                        exec('git checkout develop' + nextVersion, (err, stdout, stderr) => {
+                          console.log(`${stdout}`);
+
+                          exec('git merge release/v' + nextVersion, (err, stdout, stderr) => {
+                            console.log(`${stdout}`);
+
+                            exec('git push origin develop', (err, stdout, stderr) => {
+                              console.log(`${stdout}`);
+                              console.log('**************** END CNT Releaser ****************');
+                            });
+                          });
+                        });
+                      });
+                    });
+                  });
+                });
+              });
+            });
+          });
         });
       });
     });
