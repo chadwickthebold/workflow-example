@@ -163,7 +163,7 @@ fs.readFile(CHANGELOG_FILENAME, 'utf8', function(err, data) {
             exec('git commit -am "v' + nextVersion + ' ('+ releaseDate +')" -n', (err, stdout, stderr) => {
               console.log(`${stdout}`);
 
-              exec('git push -u origin release/v' + nextVersion, (err, stdout, stderr) => {;
+              exec('git push -u origin release/v' + nextVersion, (err, stdout, stderr) => {
                 console.log(`${stdout}`);
 
                 exec('git checkout master', (err, stdout, stderr) => {
