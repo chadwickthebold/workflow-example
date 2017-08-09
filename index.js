@@ -173,27 +173,75 @@ fs.readFile(CHANGELOG_FILENAME, 'utf8', function(err, data) {
               console.log(`${stdout}`);
 
               exec('git push -u origin release/v' + nextVersion, (err, stdout, stderr) => {
+                console.log(`stderr: ${stdout}`);
+                if (err) {
+                  console.log('some err!');
+                  // node couldn't execute the command
+                  return;
+                }
                 console.log(`${stdout}`);
 
                 exec('git checkout master', (err, stdout, stderr) => {
+                  console.log(`stderr: ${stdout}`);
+                  if (err) {
+                    console.log('some err!');
+                    // node couldn't execute the command
+                    return;
+                  }
                   console.log(`${stdout}`);
 
                   exec('git merge release/v' + nextVersion, (err, stdout, stderr) => {
+                    console.log(`stderr: ${stdout}`);
+                    if (err) {
+                      console.log('some err!');
+                      // node couldn't execute the command
+                      return;
+                    }
                     console.log(`${stdout}`);
 
                     exec('git tag -a v' + nextVersion + ' -m "v' + nextVersion + ' ('+ releaseDate +')"', (err, stdout, stderr) => {
+                      console.log(`stderr: ${stdout}`);
+                      if (err) {
+                        console.log('some err!');
+                        // node couldn't execute the command
+                        return;
+                      }
                       console.log(`${stdout}`);
 
                       exec('git push origin master --follow-tags', (err, stdout, stderr) => {
+                        console.log(`stderr: ${stdout}`);
+                        if (err) {
+                          console.log('some err!');
+                          // node couldn't execute the command
+                          return;
+                        }
                         console.log(`${stdout}`);
 
-                        exec('git checkout develop' + nextVersion, (err, stdout, stderr) => {
+                        exec('git checkout develop', (err, stdout, stderr) => {
+                          console.log(`stderr: ${stdout}`);
+                          if (err) {
+                            console.log('some err!');
+                            // node couldn't execute the command
+                            return;
+                          }
                           console.log(`${stdout}`);
 
                           exec('git merge release/v' + nextVersion, (err, stdout, stderr) => {
+                            console.log(`stderr: ${stdout}`);
+                            if (err) {
+                              console.log('some err!');
+                              // node couldn't execute the command
+                              return;
+                            }
                             console.log(`${stdout}`);
 
                             exec('git push origin develop', (err, stdout, stderr) => {
+                              console.log(`stderr: ${stdout}`);
+                              if (err) {
+                                console.log('some err!');
+                                // node couldn't execute the command
+                                return;
+                              }
                               console.log(`${stdout}`);
                               console.log('**************** END CNT Releaser ****************');
                             });
