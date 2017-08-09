@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [v1.4.0] - 2017-08-09
 ### Added
 - Logging for stderr for all git commands
 
@@ -33,7 +35,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - package.json
 - CHANGELOG.md
 
-[Unreleased]: https://github.com/chadwickthebold/workflow-example/compare/v1.3.0...HEAD
+[Unreleased]: https://github.com/chadwickthebold/workflow-example/compare/v1.4.0...HEAD
+[v1.4.0]: https://github.com/chadwickthebold/workflow-example/compare/v1.3.0...v1.4.0
 [v1.3.0]: https://github.com/chadwickthebold/workflow-example/compare/v1.2.0...v1.3.0
 [v1.2.0]: https://github.com/chadwickthebold/workflow-example/compare/v1.1.1...v1.2.0
 [v1.1.1]: https://github.com/chadwickthebold/workflow-example/compare/v1.1.0...v1.1.1
