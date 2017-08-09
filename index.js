@@ -3,6 +3,7 @@
 
 const cp = require('child_process');
 const exec = cp.exec;
+const execSync = cp.execSync;
 const fs = require('fs');
 const readline = require('readline');
 
@@ -160,7 +161,15 @@ fs.readFile(CHANGELOG_FILENAME, 'utf8', function(err, data) {
 
             rl.close();
 
+            execSync('git checkout -b release/v' + nextVersion);
+
             exec('git commit -am "v' + nextVersion + ' ('+ releaseDate +')" -n', (err, stdout, stderr) => {
+              console.log(`stderr: ${stdout}`);
+              if (err) {
+                console.log('some err!');
+                // node couldn't execute the command
+                return;
+              }
               console.log(`${stdout}`);
 
               exec('git push -u origin release/v' + nextVersion, (err, stdout, stderr) => {
